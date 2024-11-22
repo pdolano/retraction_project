@@ -49,6 +49,43 @@ def histogram_printer(df, col_name):
 
 # NOTEBOOK 2A
 
+def separate_and_clean_reasons(reasons_string, delimiter, extra_symbol):
+    """Function takes a single string containing multiple reasons separated by a given delimiter 
+    and returns a list with all individual reasons as its elements, removing white spaces
+    and any other extraneous symbols of choice, and the delimiter simbol."""
+    
+    
+    # Return empty list is reasons string is NaN
+    
+    if pd.isna(reasons_string):
+        return []
+
+    # Store invididual reasons as separated by delimiter in list
+    
+    individual_reasons_list = reasons_string.split(delimiter)  
+    
+    # Intialize another list to store cleaned individual reasons
+    
+    clean_reasons_list = [] 
+    
+    # For loop to clean individual reasons by dropping delimiter and extra symbols
+    
+    for individual_reason in individual_reasons_list:
+        
+        # Clean individual reason and store it in new variable
+        
+        clean_individual_reason = individual_reason.strip(f"{delimiter}{extra_symbol} ")
+        
+        # If not empty, append clean individual reason to clean individual reasons list
+        
+        if clean_individual_reason:  
+            clean_reasons_list.append(clean_individual_reason)
+            
+    # Return list with individual clean reasons
+    
+    return clean_reasons_list
+
+
 def get_max_severity(reason_list):
     """Function takes a list with reasons for retraction, checks what are the severity scores
     associated to each individual reason, then returns the maximum score in that collection."""
