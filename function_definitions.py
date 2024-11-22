@@ -1,10 +1,14 @@
 
+# IMPORT LIBRARIES
+
+import pandas as pd  
+
 
 # NOTEBOOK 1: DATA CLEANING
 
 # Define percentage_finder_nan function
 
-def percentage_finder_nan(df, col_name, val_name):
+def percentage_finder(df, col_name, val_name):
     """This function takes a data frame, the name of a column, and one of the 
     possible values of the column. It then returns how often that one value 
     occurs in that column of the data frame."""
@@ -43,6 +47,19 @@ def histogram_printer(df, col_name):
     
     df[col_name].hist()
 
+# NOTEBOOK 2A
+
+def get_max_severity(reason_list):
+    """Function takes a list with reasons for retraction, checks what are the severity scores
+    associated to each individual reason, then returns the maximum score in that collection."""
+    
+    # Create list with scores associated to reasons in input list
+    
+    scores = df_severity[df_severity['reason'].isin(reason_list)]['severity_score']
+    
+    # Return maximum vaue in the scores list
+    
+    return max(scores) if not scores.empty else None
 
 # NOTEBOOK X
 
