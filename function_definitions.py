@@ -49,7 +49,7 @@ def histogram_printer(df, col_name):
 
 # NOTEBOOK 2A
 
-def separate_and_clean_reasons(reasons_string, delimiter, extra_symbol):
+def separate_and_clean_reasons(reasons_string, delimiter = ";", extra_symbol = ""):
     """Function takes a single string containing multiple reasons separated by a given delimiter 
     and returns a list with all individual reasons as its elements, removing white spaces
     and any other extraneous symbols of choice, and the delimiter simbol."""
