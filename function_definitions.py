@@ -2,6 +2,9 @@
 # IMPORT LIBRARIES
 
 import pandas as pd  
+import requests
+import os
+import json
 
 
 # NOTEBOOK 1A: GENERAL DATA CLEANING 
@@ -293,6 +296,37 @@ def fetch_json_files(df, json_directory, log_directory):
     
     df_log.to_csv(log_directory, index=False)
     
+
+# Define function to get list of already downloaded DOIs
+
+def downloaded_paper_list_getter(directory, log_directory):
+    """
+    Function takes a file path as input, checks how many .json files there are in that
+    direcotry, then reconstructs the DOIs associated to each file from their names by 
+    removing the file extension, returns a data frame with resulting DOIs and writes
+    the content of this data frame into a .csv file.
+    """
+    
+    # Create list with names of all files in input directory
+    
+    file_names = [file for file in os.listdir(directory) if file.endswith('.json')]
+    
+    # Create list with names of all files minus ".json" extension  
+    # Given the name structure of our files, this will give us a list of all DOIs in folder
+    
+    paper_dois = [file[:-5].replace('_', '/') for file in file_names]
+    
+    # Create data frame with names of all files in folder
+    
+    df_dois = pd.DataFrame(paper_dois, columns=['doi'])
+    
+    # Write content of log data frame into resulting path
+    
+    df_dois.to_csv(log_directory, index=False)
+    
+    # Return data frame
+    
+    return df_dois
 
 # Define function to remove papers for which we already have a .json file from original data frame
 
