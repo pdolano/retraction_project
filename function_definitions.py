@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 import os
 import json
+import string
 
 
 # NOTEBOOK 1A: GENERAL DATA CLEANING 
@@ -352,10 +353,117 @@ def remove_non_printable(text):
     printable = set(string.printable)
     return ''.join(filter(lambda x: x in printable, text))
 
+
+#define abstract_getter function
+
+def abstract_getter(input_path):
+    
+    # Initialize data and log_entries
+    data = []
+    log_entries = []
+    
+    # Obtain file names of .json files in input directory
+    files = os.listdir(input_path)
+    
+    # For loop to iterate over all .json files in input directory
+    for i, filename in enumerate(files):
+    
+        # If sentence to make sure we only process .json files
+        if filename.endswith('.json'):
+        
+            # Construct full path for current .json file in loop
+            file_path = os.path.join(input_path, filename)
+        
+            # Try sentence to account for errors reading current .json file
+            try:
+            
+                # Open and read current .json file
+                with open(file_path, 'r', encoding='utf-8') as file:
+                
+                    # Write content of current .json file into content variable
+                    content = json.load(file)
+                
+                    # Extract DOI of article associated to current .json file
+                    doi = filename.replace('.json', '')
+
+                    # Get inverted index from content variable 
+                    abstract_inverted_index = content.get('abstract_inverted_index', {})
+                
+                    # If sentence to make sure we only process non-empty word indeces
+                    if abstract_inverted_index:
+                    
+                        # Initialize list of tuples with each word and the position that it occupies in the abstract text
+                        index_word_pairs = [(index, word) for word, indices in abstract_inverted_index.items() for index in indices]
+                    
+                        # Sort list according to the position of each word in the abstract text
+                        index_word_pairs.sort()
+                    
+                        # Reconstruct abstract by adding words in list of tuples in the order of their occurrence in the text
+                        # We add a space at the beginning and strip it at the end
+                        abstract_text = ' '.join(word for _, word in index_word_pairs).strip()
+                   
+                        # Create string with delimiter characters to be removed from reconstructed text
+                        delimiters = ",;|{}\n\r\t[]<>"
+                    
+                        # For loop to iterate over all delimiters in delimiter string
+                        for delimiter in delimiters:
+                        
+                            # Replace current delimiter in loop with blank space
+                            abstract_text = abstract_text.replace(delimiter, ' ')
+                        
+                        # Call function to remove non printable characters from reconstructed text 
+                        abstract_text = remove_non_printable(abstract_text)
+                    
+                    # Else sentence to account for situation in which inverted index is empty
+                    else:
+                        log_entries.append({'filename': filename, 'success': False, 'message': 'No abstract_inverted_index provided'})
+                        continue
+                    
+                    # Initialize author_country string
+                    author_country = 'Unknown'  # Default value
+                
+                    # If clause to check if authorship information is present in content variable
+                    if 'authorships' in content:
+                    
+                        # For loop to iterate over authorsips list
+                        for authorship in content['authorships']:
+                        
+                            # Extract country code from institution of first author for which information is available
+                            if 'institutions' in authorship and any(inst.get('country_code') for inst in authorship['institutions']):
+                                author_country = next((inst['country_code'] for inst in authorship['institutions'] if 'country_code' in inst), "Unknown")
+                                break
+
+                    # Extract publication year from content variable
+                    year = content.get('publication_year', 'Unknown')
+                
+                    # Check for the presence of "retract%" or "withdraw%" in abstract_text
+                    retracted_flag = any(word in abstract_text.lower() for word in ["retract", "withdraw", "retracted", "retraction", "withdrew", "withdrawal","withdrawn", "retracts"])
+
+                    # Update data variable with reconstructed text and additional information
+                    data.append({
+                        'abstract_text': f'"{abstract_text}"',  # Ensure the text is surrounded by double quotes
+                        'target': 1,
+                        'doi': doi,
+                        'country': author_country,
+                        'year': year,
+                        'ret_flag': retracted_flag
+                    })
+
+                    # Update log variable  with success message
+                    log_entries.append({'filename': filename, 'success': True, 'message': 'Processed successfully'})
+        
+        
+            # Clause to account for errors in reading the current .json file
+            except Exception as e:
+            
+                # Update log variable with current error message
+                log_entries.append({'filename': filename, 'success': False, 'message': f'Error processing file - {str(e)}'})
+
+    return data, log_entries
+
+
+
 # NOTEBOOK 3A: FETCHING DOIS NON-RETRACTED
-
-
-
 
 def seconds_to_hms(seconds):
     """
