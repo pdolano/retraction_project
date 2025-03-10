@@ -354,11 +354,11 @@ def remove_non_printable(text):
     return ''.join(filter(lambda x: x in printable, text))
 
 
-#define abstract_getter function
+# Define abstract_getter function
 
-def abstract_getter(input_path):
+def abstract_getter(input_path, target_val):
     
-    # Initialize data and log_entries
+    # Initialize variables
     data = []
     log_entries = []
     
@@ -442,7 +442,7 @@ def abstract_getter(input_path):
                     # Update data variable with reconstructed text and additional information
                     data.append({
                         'abstract_text': f'"{abstract_text}"',  # Ensure the text is surrounded by double quotes
-                        'target': 1,
+                        'target': target_val,
                         'doi': doi,
                         'country': author_country,
                         'year': year,
@@ -460,7 +460,6 @@ def abstract_getter(input_path):
                 log_entries.append({'filename': filename, 'success': False, 'message': f'Error processing file - {str(e)}'})
 
     return data, log_entries
-
 
 
 # NOTEBOOK 3A: FETCHING DOIS NON-RETRACTED
