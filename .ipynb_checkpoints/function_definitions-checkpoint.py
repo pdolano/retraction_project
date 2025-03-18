@@ -50,6 +50,28 @@ def histogram_printer(df, col_name):
     for the vaulues of that column of the data frame"""
     
     df[col_name].hist()
+
+
+# Define column_unpacker function
+
+def column_unpacker(df, column):
+
+    # Create series with all entries in column by splitting and exploding entries in subject column
+
+    entries_series = df[column].str.split(';').explode()
+
+    # Obtain list with unique entries from series
+
+    unique_entries_list = sorted(entries_series.unique())
+
+    # Obtain series with value counts of unique entries
+    
+    unique_entries_value_counts = entries_series.value_counts()
+
+    # Return both series
+
+    return entries_series, unique_entries_list, unique_entries_value_counts
+
     
 # NOTEBOOK 1B: SEVERITY SCORE
 
